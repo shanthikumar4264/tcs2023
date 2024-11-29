@@ -1,0 +1,59 @@
+from collections import deque, defaultdict
+
+def main():
+    # Read number of edges
+    edge_count = int(input())
+
+    # Initialize graph structure (adjacency list) and incoming edges (indegree counter)
+    graph = defaultdict(list)
+    indegrees = defaultdict(int)
+
+    # Reading edges and building the graph
+    for _ in range(edge_count):
+        start, end = input().split()
+        graph[start].append(end)
+        indegrees[start]  # Ensure start node is in indegrees (default 0)
+        indegrees[end] += 1  # Increment indegree for end node
+
+    # Reading the list of words
+    words = input().split()
+
+    # Dictionary to store the level of each node (word)
+    node_levels = {}
+    queue = deque()
+
+    # Enqueue all nodes with zero incoming edges (roots)
+    for node in indegrees:
+        if indegrees[node] == 0:
+            node_levels[node] = 1  # Root node level is 1
+            queue.append(node)
+
+    # Perform a BFS to calculate levels of each node
+    while queue:
+        current_node = queue.popleft()
+        current_level = node_levels[current_node]
+
+        # Process all neighbors (outgoing edges)
+        for neighbor in graph[current_node]:
+            if neighbor not in node_levels:
+                node_levels[neighbor] = current_level + 1
+                queue.append(neighbor)
+
+            # Decrease the indegree and enqueue if it reaches zero
+            indegrees[neighbor] -= 1
+            if indegrees[neighbor] == 0 and neighbor not in node_levels:
+                queue.append(neighbor)
+
+    # Calculate the total value by summing the levels of the words
+    total_value = 0
+    for word in words:
+        if word in node_levels:
+            total_value += node_levels[word]
+        else:
+            total_value -= 1  # If word isn't in the graph, add -1
+
+    # Output the final result
+    print(total_value)
+
+if __name__ == "__main__":
+    main()
